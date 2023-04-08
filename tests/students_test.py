@@ -1,3 +1,13 @@
+def test_get_assignments_wo_header_student_1(client):
+    response = client.get('/student/assignments')
+
+    assert response.status_code == 401
+
+    error_response = response.json
+    assert error_response['error'] == 'FyleError'
+    assert error_response['message'] == 'principal not found'
+
+
 def test_get_assignments_student_1(client, h_student_1):
     response = client.get(
         '/student/assignments',
@@ -31,6 +41,25 @@ def test_post_assignment_student_1(client, h_student_1):
         '/student/assignments',
         headers=h_student_1,
         json={
+            'content': content
+        })
+
+    assert response.status_code == 200
+
+    data = response.json['data']
+    assert data['content'] == content
+    assert data['state'] == 'DRAFT'
+    assert data['teacher_id'] is None
+
+
+def test_edit_assignment_student_1(client, h_student_1):
+    content = 'SOME Random CONTENT'
+
+    response = client.post(
+        '/student/assignments',
+        headers=h_student_1,
+        json={
+            'id': 2,
             'content': content
         })
 
